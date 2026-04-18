@@ -168,6 +168,15 @@ const Utils = {
     tokenize: (text) => {
         const clean = Utils.normalize(text);
         return clean.split(/\s+/).filter(t => t && !STOP_WORDS.has(t));
+    },
+    // Fisher-Yates shuffle (không mutate array gốc)
+    shuffle: (array) => {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
     }
 };
 
@@ -188,7 +197,9 @@ const StorageService = {
                 answeredIds: Array.from(state.answeredIds),
                 analytics: state.analytics,
                 strictMode: state.strictMode,
-                theme: state.theme
+                theme: state.theme,
+                // Persist thứ tự câu để reload không đảo lại
+                questionOrder: state.activeQuestions.map(q => q.id)
             }
         };
         localStorage.setItem(StorageService.KEY, JSON.stringify(payload));
@@ -504,8 +515,7 @@ const App = {
             const rawData = await res.json();
             
             AppState.questions = Validator.preprocessQuestions(rawData);
-            AppState.activeQuestions = [...AppState.questions];
-            
+
             // Hydrate Storage
             const savedState = StorageService.load();
             if (savedState) {
@@ -515,9 +525,26 @@ const App = {
                 AppState.analytics = savedState.analytics || { wrongClusters: {} };
                 AppState.strictMode = savedState.strictMode;
                 AppState.theme = savedState.theme || 'dark';
+
+                // Khôi phục đúng thứ tự câu đã shuffle từ session trước
+                if (savedState.questionOrder && savedState.questionOrder.length > 0) {
+                    const map = new Map(AppState.questions.map(q => [q.id, q]));
+                    const restored = savedState.questionOrder.map(id => map.get(id)).filter(Boolean);
+                    // Nếu số câu khớp → dùng lại; nếu JSON đổi → shuffle mới
+                    AppState.activeQuestions = restored.length === AppState.questions.length
+                        ? restored
+                        : Utils.shuffle(AppState.questions);
+                } else {
+                    AppState.activeQuestions = Utils.shuffle(AppState.questions);
+                }
+            } else {
+                // Session mới: shuffle lần đầu
+                AppState.activeQuestions = Utils.shuffle(AppState.questions);
             }
-            
+
             App.syncStateWithData();
+            // Lock in thứ tự ngay sau khi xác định để mọi save sau đều persist đúng
+            StorageService.save(AppState);
 
             // UI Init
             UIController.DOM.loading.style.display = 'none';
