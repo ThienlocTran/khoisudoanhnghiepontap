@@ -108,6 +108,7 @@
             </div>
             <div class="flex-between gap-3">
                 <label class="setting-label" title="Bật: Phải nộp bài (đúng/sai đều được) mới qua câu."><input type="checkbox" id="ui-strict-mode"> Strict Mode</label>
+                <button class="btn-nav" id="btn-shuffle" style="padding: 6px 10px; flex: 0;" title="Xáo trộn câu hỏi">🔀</button>
                 <button class="btn-nav" id="btn-theme" style="padding: 6px 10px; flex: 0;" title="Đổi nền">🌓</button>
             </div>
         </div>
@@ -244,6 +245,47 @@ const AnalyticsService = {
         a.href = dataStr;
         a.download = `quiz_analytics_${new Date().toISOString().slice(0,10)}.json`;
         a.click();
+    }
+};
+
+/**
+ * ==========================================
+ * 2b. SHUFFLE CONTROLLER
+ * ==========================================
+ */
+const ShuffleController = {
+    // Mode 2: Giữ điểm đúng (solvedIds), reset trạng thái nộp bài (answeredIds)
+    // → Phù hợp nhất cho ôn tập: biết câu nào đã thuộc, không cần làm lại
+    shuffleAll: () => {
+        if (!confirm("Bạn muốn xáo trộn lại toàn bộ câu hỏi?\n(Tiến trình câu hiện tại sẽ reset, điểm đúng vẫn được giữ)")) return;
+
+        AppState.currentIndex = 0;
+        AppState.answeredIds.clear();           // Reset trạng thái nộp bài
+        // AppState.solvedIds KHÔNG clear → giữ badge "Đúng: X/20"
+
+        AppState.activeQuestions = Utils.shuffle(AppState.questions);
+        StorageService.save(AppState);          // Lock in thứ tự mới ngay lập tức
+
+        UIController.showToast("🔀 Đã xáo trộn câu hỏi!");
+        UIController.renderQuestion();
+    },
+
+    // Bonus: chỉ shuffle câu chưa đúng (Adaptive mode)
+    shuffleWeak: () => {
+        const unsolved = AppState.questions.filter(q => !AppState.solvedIds.has(q.id));
+        if (unsolved.length === 0) {
+            UIController.showToast("🎉 Bạn đã làm đúng tất cả câu!");
+            return;
+        }
+        if (!confirm(`Chỉ luyện ${unsolved.length} câu chưa thuộc?`)) return;
+
+        AppState.currentIndex = 0;
+        AppState.answeredIds.clear();
+        AppState.activeQuestions = Utils.shuffle(unsolved);
+        StorageService.save(AppState);
+
+        UIController.showToast(`🎯 Luyện ${unsolved.length} câu yếu!`);
+        UIController.renderQuestion();
     }
 };
 
@@ -424,6 +466,10 @@ const UIController = {
             AppState.strictMode = e.target.checked;
             StorageService.save(AppState);
             DOM.btnNext.disabled = NavController.isNextLocked();
+        });
+
+        document.getElementById('btn-shuffle').addEventListener('click', () => {
+            ShuffleController.shuffleAll();
         });
 
         document.getElementById('btn-theme').addEventListener('click', () => {
