@@ -2,24 +2,239 @@
   {
     "id": 1,
     "question": "Em hãy cho biết những đặc điểm chung mà doanh nhân thường có?",
-    "answer": "1. Sự tự tin\n2. Thích giao tiếp xã hội\n3. Nhìn trước tương lai\n4. Có định hướng hành động",
+    "answer": "1. Sự tự tin\n2. Thích giao tiếp xã hội\n3. Nhìn trước tương lai (lo xa / nhìn xa trông rộng)\n4. Có định hướng hành động",
     "clusters": [
       ["tu tin"],
-      ["giao tiep xa hoi", "ky nang mem"],
-      ["tuong lai", "lo xa", "nhin xa trong rong"],
-      ["hanh dong", "dinh huong"]
+      ["giao tiep xa hoi", "ky nang giao tiep", "ky nang mem"],
+      ["tuong lai", "lo xa", "nhin xa trong rong", "nhin truoc tuong lai"],
+      ["hanh dong", "dinh huong hanh dong"]
     ],
     "requiredMatches": 3
   },
   {
     "id": 2,
     "question": "Hãy nêu 4 giai đoạn của vòng đời kinh doanh?",
-    "answer": "1. Khởi động\n2. Cạnh tranh\n3. Tăng trưởng\n4. Trưởng thành và suy thoái",
+    "answer": "1. Khởi động\n2. Cạnh tranh\n3. Tăng trưởng (hoặc phát triển)\n4. Trưởng thành và suy thoái",
     "clusters": [
-      ["khoi dong"],
+      ["khoi dong", "bat dau"],
       ["canh tranh"],
       ["tang truong", "phat trien"],
       ["truong thanh", "suy thoai"]
-    ]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 3,
+    "question": "Phân biệt thu nhập chủ động và thu nhập thụ động, và cho ví dụ cụ thể cho từng loại.",
+    "answer": "• Thu nhập chủ động: Tiền kiếm được trực tiếp từ lao động/dịch vụ cung cấp.\n  Ví dụ: Tiền lương nhân viên văn phòng.\n• Thu nhập thụ động: Tiền kiếm được mà không cần trực tiếp làm việc liên tục.\n  Ví dụ: Tiền thuê nhà, lợi nhuận đầu tư chứng khoán, doanh thu sản phẩm số.",
+    "clusters": [
+      ["thu nhap chu dong", "lao dong truc tiep", "tien luong"],
+      ["thu nhap thu dong", "khong truc tiep lam viec"],
+      ["vi du chu dong", "luong nhan vien", "tien cong"],
+      ["vi du thu dong", "thue nha", "chung khoan", "san pham so", "dau tu"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 4,
+    "question": "Quy trình 4 bước nhận thức cơ hội kinh doanh?",
+    "answer": "B1. Nhận thức, đánh giá được cơ hội/ý tưởng kinh doanh\nB2. Khái quát hóa cơ hội\nB3. Lập kế hoạch giải quyết cơ hội\nB4. Vận hành triển khai",
+    "clusters": [
+      ["nhan thuc co hoi", "danh gia co hoi", "y tuong kinh doanh"],
+      ["khai quat hoa", "khai quat co hoi"],
+      ["lap ke hoach", "giai quyet co hoi"],
+      ["van hanh", "trien khai"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 5,
+    "question": "Nêu các hình thức vốn có thể huy động cho khởi nghiệp?",
+    "answer": "1. Vốn riêng khởi nghiệp (Bootstrapping)\n2. Vốn cổ phần (Equity)\n3. Vốn đầu tư mạo hiểm (Venture Capital)\n4. Vốn vay (Loans)",
+    "clusters": [
+      ["von rieng", "bootstrapping", "tu co"],
+      ["von co phan", "equity"],
+      ["dau tu mao hiem", "venture capital"],
+      ["von vay", "loans", "vay von"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 6,
+    "question": "Liệt kê các yếu tố trong Phương trình ý tưởng kinh doanh?",
+    "answer": "3 yếu tố gồm:\n1. Đối tượng\n2. Vấn đề / Lợi ích\n3. Mô hình kinh doanh",
+    "clusters": [
+      ["doi tuong", "khach hang muc tieu"],
+      ["van de", "loi ich"],
+      ["mo hinh kinh doanh"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 7,
+    "question": "Hãy trình bày 5 loại đổi mới được nói đến trong bài Udemy?",
+    "answer": "5 loại đổi mới:\n1. Giá cả\n2. Sự tiện lợi\n3. Tốc độ\n4. Chất lượng\n5. Sự thể hiện (hoặc Tự thể hiện)",
+    "clusters": [
+      ["gia ca", "gia"],
+      ["tien loi", "su tien loi"],
+      ["toc do"],
+      ["chat luong"],
+      ["the hien", "tu the hien", "su the hien"]
+    ],
+    "requiredMatches": 4
+  },
+  {
+    "id": 8,
+    "question": "Mô hình kinh doanh DTC là gì? Và doanh nghiệp bán sản phẩm trực tiếp đến khách hàng, không qua nhà bán lẻ đang áp dụng mô hình nào?",
+    "answer": "• DTC (Direct-to-Consumer): Mô hình bán hàng trực tiếp đến người tiêu dùng, bỏ qua nhà bán buôn/bán lẻ truyền thống.\n• Doanh nghiệp trong ví dụ đang áp dụng mô hình DTC.",
+    "clusters": [
+      ["dtc", "direct to consumer", "truc tiep den nguoi tieu dung"],
+      ["bo qua nha ban le", "khong qua trung gian", "bo qua ban buon"],
+      ["mo hinh dtc", "ap dung dtc"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 9,
+    "question": "Theo nội dung bài học, quy trình lập Bảng kế hoạch kinh doanh gồm bao nhiêu bước? Kể tên bước 4, 5 trong quy trình này?",
+    "answer": "Gồm 13 bước.\n• Bước 4: Đội ngũ quản lý\n• Bước 5: Sản phẩm / Dịch vụ",
+    "clusters": [
+      ["13 buoc", "muoi ba buoc"],
+      ["doi ngu quan ly", "to chuc quan ly"],
+      ["san pham dich vu", "san pham", "dich vu"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 10,
+    "question": "Hãy liệt kê các loại hình pháp lý theo luật Doanh nghiệp 2015?",
+    "answer": "1. Công ty TNHH 1 thành viên\n2. Công ty TNHH 2 thành viên trở lên\n3. Công ty cổ phần\n4. Công ty hợp danh\n5. Doanh nghiệp tư nhân",
+    "clusters": [
+      ["tnhh 1 thanh vien", "tnhh mot thanh vien"],
+      ["tnhh 2 thanh vien", "tnhh hai thanh vien"],
+      ["co phan", "cong ty co phan"],
+      ["hop danh", "cong ty hop danh"],
+      ["tu nhan", "doanh nghiep tu nhan"]
+    ],
+    "requiredMatches": 4
+  },
+  {
+    "id": 11,
+    "question": "Trong kế hoạch kinh doanh, doanh nghiệp xây dựng chính sách lực lượng bán hàng và chọn kênh truyền thông online (website, mạng xã hội). Đây là bước nào trong quy trình lập Bảng kế hoạch kinh doanh?",
+    "answer": "Bước 9: Chiến lược / Kế hoạch Marketing và Bán hàng.",
+    "clusters": [
+      ["buoc 9", "buoc chin"],
+      ["marketing", "chien luoc marketing"],
+      ["ban hang", "ke hoach ban hang"],
+      ["truyen thong", "kenh phan phoi"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 12,
+    "question": "Hãy trình bày các loại báo cáo cần lập trong Bước 12: Báo cáo tài chính?",
+    "answer": "1. Báo cáo doanh thu (REV)\n2. Báo cáo kết quả kinh doanh (IS)\n3. Bảng cân đối kế toán (BS)\n4. Báo cáo lưu chuyển tiền tệ (CF)",
+    "clusters": [
+      ["bao cao doanh thu", "rev", "doanh thu"],
+      ["ket qua kinh doanh", "income statement", "is"],
+      ["can doi ke toan", "bang can doi", "bs", "balance sheet"],
+      ["luu chuyen tien te", "cash flow", "cf"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 13,
+    "question": "Theo nội dung bài học, có mấy bước trong quy trình lập Bảng kế hoạch kinh doanh? Bước 10, 11 tên là gì?",
+    "answer": "Có 13 bước.\n• Bước 10: Các cột mốc quan trọng trong kế hoạch kinh doanh\n• Bước 11: Những rủi ro ảnh hưởng đến kế hoạch kinh doanh",
+    "clusters": [
+      ["13 buoc", "muoi ba"],
+      ["cot moc", "cot moc quan trong"],
+      ["rui ro", "nhung rui ro anh huong"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 14,
+    "question": "Doanh nghiệp đánh giá rủi ro (công nghệ, đối thủ cạnh tranh, kinh tế vĩ mô) và lập kế hoạch khắc phục sự cố. Đây là bước nào trong quy trình lập Bảng kế hoạch kinh doanh?",
+    "answer": "Bước 11: Những rủi ro ảnh hưởng đến Kế hoạch kinh doanh.",
+    "clusters": [
+      ["buoc 11", "buoc muoi mot"],
+      ["rui ro", "nhung rui ro"],
+      ["anh huong ke hoach", "ke hoach khac phuc", "khac phuc su co"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 15,
+    "question": "Công thức tính doanh thu?",
+    "answer": "Doanh thu = Số lượng sản phẩm bán ra × Giá bán",
+    "clusters": [
+      ["doanh thu"],
+      ["so luong san pham", "so luong ban ra"],
+      ["gia ban", "don gia"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 16,
+    "question": "Công thức tính lợi nhuận?",
+    "answer": "Lợi nhuận = Tổng doanh thu - Tổng chi phí hoạt động kinh doanh",
+    "clusters": [
+      ["loi nhuan"],
+      ["tong doanh thu", "doanh thu"],
+      ["chi phi", "tong chi phi", "chi phi hoat dong"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 17,
+    "question": "Liệt kê các yếu tố trong mô hình Business Model Canvas?",
+    "answer": "1. Phân khúc khách hàng\n2. Giá trị cung cấp\n3. Kênh phân phối\n4. Mối quan hệ khách hàng\n5. Nguồn doanh thu\n6. Nguồn lực chính\n7. Hoạt động chính\n8. Đối tác chính\n9. Cấu trúc chi phí",
+    "clusters": [
+      ["phan khuc khach hang", "khach hang"],
+      ["gia tri cung cap", "gia tri"],
+      ["kenh phan phoi", "kenh"],
+      ["quan he khach hang", "moi quan he"],
+      ["nguon doanh thu", "doanh thu"],
+      ["nguon luc chinh", "nguon luc"],
+      ["hoat dong chinh", "hoat dong"],
+      ["doi tac chinh", "doi tac"],
+      ["cau truc chi phi", "chi phi"]
+    ],
+    "requiredMatches": 6
+  },
+  {
+    "id": 18,
+    "question": "Cấu trúc chi phí của doanh nghiệp bao gồm những chi phí nào, cho ví dụ mỗi loại?",
+    "answer": "• Chi phí cố định: Không thay đổi theo sản lượng.\n  Ví dụ: Tiền thuê nhà xưởng, bảo hiểm, lương nhân viên văn phòng.\n• Chi phí biến đổi: Thay đổi theo sản lượng.\n  Ví dụ: Nguyên vật liệu, tiền điện, lương nhân viên bán hàng.",
+    "clusters": [
+      ["chi phi co dinh", "fixed cost"],
+      ["chi phi bien doi", "variable cost", "chi phi bien"],
+      ["vi du co dinh", "thue nha xuong", "bao hiem", "luong van phong"],
+      ["vi du bien doi", "nguyen vat lieu", "tien dien", "luong ban hang"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 19,
+    "question": "Một doanh nghiệp xác định nhu cầu, hành vi và đặc điểm nhân khẩu học của khách hàng, đồng thời lựa chọn thị trường đại chúng hoặc thị trường ngách. Đây là yếu tố nào trong Business Model Canvas?",
+    "answer": "Phân khúc khách hàng (Customer Segments).",
+    "clusters": [
+      ["phan khuc khach hang", "customer segment"],
+      ["nhu cau hanh vi", "nhan khau hoc", "hanh vi khach hang"],
+      ["thi truong dai chung", "thi truong ngach", "thi truong"]
+    ],
+    "requiredMatches": 2
+  },
+  {
+    "id": 20,
+    "question": "Hãy sắp xếp các công ty sau vào mô hình doanh thu tương ứng: Microsoft, LinkedIn, Dropbox, Facebook, Google Drive, Canva.\nMô hình: Đăng ký (Subscription), Freemium, Quảng cáo (Advertising).",
+    "answer": "• Subscription (Đăng ký): Microsoft, Google Drive, Dropbox\n• Freemium: LinkedIn, Canva\n• Advertising (Quảng cáo): LinkedIn, Facebook",
+    "clusters": [
+      ["microsoft", "google drive", "dropbox", "subscription", "dang ky"],
+      ["linkedin canva", "linkedin", "canva", "freemium"],
+      ["facebook", "quang cao", "advertising"]
+    ],
+    "requiredMatches": 2
   }
 ]
