@@ -1,271 +1,542 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khởi Sự Doanh Nghiệp - Ôn Tập Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Khởi Sự Doanh Nghiệp - Production Quiz</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { 
-            background-color: #1e1e2e; 
-            color: #cdd6f4; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            margin: 0; 
+        /* =========================================
+           🎨 UI & THEMING (MOBILE FIRST)
+           ========================================= */
+        :root[data-theme="dark"] {
+            --bg: #11111b; --surface: #1e1e2e; --input: #313244;
+            --text: #cdd6f4; --text-dim: #a6adc8;
+            --primary: #89b4fa; --primary-hover: #74c7ec;
+            --success: #a6e3a1; --success-bg: rgba(166, 227, 161, 0.1);
+            --danger: #f38ba8; --danger-bg: rgba(243, 139, 168, 0.1);
+            --border: #45475a; --highlight: rgba(249, 226, 175, 0.3);
+            --highlight-text: #f9e2af;
         }
-        .container { 
-            background-color: #313244; 
-            padding: 30px; 
-            border-radius: 12px; 
-            width: 90%; 
-            max-width: 650px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            position: relative;
+        :root[data-theme="light"] {
+            --bg: #f4f5f7; --surface: #ffffff; --input: #f4f5f7;
+            --text: #172b4d; --text-dim: #5e6c84;
+            --primary: #0052cc; --primary-hover: #0065ff;
+            --success: #00875a; --success-bg: #e3fcef;
+            --danger: #de350b; --danger-bg: #ffebe6;
+            --border: #dfe1e6; --highlight: #fffae6;
+            --highlight-text: #ff8b00;
         }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; color: #a6adc8; }
-        .score-badge { background: #89b4fa; color: #11111b; padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; }
-        .question { font-size: 1.25rem; margin-bottom: 20px; line-height: 1.5; color: #f38ba8; font-weight: bold; min-height: 60px;}
-        
-        textarea { 
-            width: 100%; 
-            height: 90px; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #45475a; 
-            background-color: #181825; 
-            color: #cdd6f4; 
-            font-size: 1rem; 
-            resize: none;
-            margin-bottom: 15px;
-            transition: border 0.3s;
-        }
-        textarea:focus { outline: none; border-color: #89b4fa; }
-        
-        .main-actions { display: flex; gap: 10px; margin-bottom: 20px; }
-        button {
-            padding: 12px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        
-        .btn-check { flex: 2; background-color: #89b4fa; color: #11111b; }
-        .btn-check:hover:not(:disabled) { background-color: #74c7ec; transform: translateY(-2px); }
-        
-        .btn-retry { flex: 1; background-color: #fab387; color: #11111b; display: none; }
-        .btn-retry:hover { background-color: #f9e2af; transform: translateY(-2px); }
 
-        .nav-actions { display: flex; justify-content: space-between; border-top: 1px solid #45475a; padding-top: 20px; }
-        .btn-nav { background-color: #45475a; color: #cdd6f4; padding: 10px 20px; }
-        .btn-nav:hover:not(:disabled) { background-color: #585b70; }
-        .btn-random { background-color: #cba6f7; color: #11111b; }
-        .btn-random:hover { background-color: #f5c2e7; }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; padding: 15px; }
+        
+        .app-container { background: var(--surface); width: 100%; max-width: 800px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); display: flex; flex-direction: column; position: relative; padding-bottom: 80px; overflow: hidden; }
+        
+        /* Layouts */
+        .p-4 { padding: 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .gap-2 { gap: 10px; } .gap-3 { gap: 15px; }
 
-        .feedback { 
-            margin-bottom: 20px; 
-            padding: 15px; 
-            border-radius: 8px; 
-            display: none; 
-            animation: fadeIn 0.4s;
-        }
-        .feedback.correct { background-color: rgba(166, 227, 161, 0.15); border: left 4px solid #a6e3a1; }
-        .feedback.wrong { background-color: rgba(243, 139, 168, 0.15); border-left: 4px solid #f38ba8; }
-        .feedback h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1rem; }
-        .official-ans { color: #bac2de; font-size: 0.95rem; line-height: 1.5; }
+        /* Loading & Error Screens */
+        #loading-screen, #error-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 300px; text-align: center; }
+        #error-screen { display: none; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Stats & Header */
+        .header { border-bottom: 1px solid var(--border); }
+        .badge { background: var(--border); padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block;}
+        .badge-success { background: var(--success); color: #000; }
+        .setting-label { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
+        
+        /* Typography */
+        .question-text { font-size: 1.2rem; font-weight: 600; color: var(--primary); line-height: 1.5; margin-bottom: 15px; }
+        .sub-text { font-size: 0.9rem; color: var(--text-dim); }
 
-        /* Hiệu ứng */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
-        .shake-effect { animation: shake 0.4s; }
-        .flash-green { box-shadow: 0 0 40px rgba(166, 227, 161, 0.4); }
-        .flash-red { box-shadow: 0 0 40px rgba(243, 139, 168, 0.4); }
+        /* Inputs & Feedback */
+        textarea { width: 100%; min-height: 120px; padding: 15px; border-radius: 8px; border: 2px solid var(--border); background: var(--input); color: var(--text); font-size: 1rem; resize: none; transition: border-color 0.2s; }
+        textarea:focus { outline: none; border-color: var(--primary); }
+        textarea:disabled { opacity: 0.6; }
+        
+        .feedback { display: none; padding: 20px; border-radius: 8px; margin-top: 15px; border-left: 4px solid transparent; }
+        .feedback.show { display: block; animation: slideIn 0.3s ease; }
+        .feedback.correct { background: var(--success-bg); border-color: var(--success); }
+        .feedback.wrong { background: var(--danger-bg); border-color: var(--danger); }
+        
+        .idea-list { margin-top: 10px; padding-left: 20px; line-height: 1.6; }
+        .idea-pass { color: var(--success); }
+        .idea-fail { color: var(--danger); }
+
+        .official-ans { margin-top: 15px; padding: 15px; background: var(--input); border-radius: 8px; white-space: pre-line; font-size: 0.95rem; line-height: 1.6; }
+        
+        /* Highlight XSS safe */
+        .highlight-phrase { background: var(--highlight); color: var(--highlight-text); border-radius: 4px; padding: 0 4px; font-weight: 600; }
+
+        /* Action Bar */
+        .action-bar { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 15px 20px; display: flex; gap: 10px; z-index: 10; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; color: #fff; transition: opacity 0.2s, transform 0.1s; display: flex; justify-content: center; align-items: center;}
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        button:active:not(:disabled) { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: #000; flex: 2; }
+        .btn-nav { background: var(--border); color: var(--text); }
+
+        #toast { position: fixed; bottom: 90px; right: 20px; background: var(--input); border-left: 4px solid var(--primary); padding: 12px 20px; border-radius: 8px; transform: translateX(120%); transition: transform 0.3s; z-index: 1000; font-size: 0.9rem; font-weight: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        #toast.show { transform: translateX(0); }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="container" id="gameBox">
-    <div class="top-bar">
-        <span id="progress">Câu 1 / 20</span>
-        <span class="score-badge" id="score">Điểm: 0</span>
-    </div>
-    
-    <div class="question" id="questionText">Đang tải câu hỏi...</div>
-    
-    <textarea id="userInput" placeholder="Nhập câu trả lời theo ý hiểu của em..."></textarea>
-    
-    <div class="main-actions">
-        <button class="btn-check" id="btnCheck" onclick="checkAnswer()">📝 Kiểm tra đáp án</button>
-        <button class="btn-retry" id="btnRetry" onclick="retryQuestion()">🔄 Làm lại</button>
+<div class="app-container" id="app">
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p class="sub-text">Đang tải cấu trúc đề kiểm tra...</p>
     </div>
 
-    <div class="feedback" id="feedbackBox">
-        <h3 id="feedbackStatus"></h3>
-        <strong>Đáp án chuẩn:</strong>
-        <div class="official-ans" id="officialAns"></div>
+    <div id="error-screen">
+        <h2>⚠️ Lỗi kết nối dữ liệu</h2>
+        <p class="sub-text" style="margin: 10px 0;">Không thể tải file questions.json</p>
+        <button class="btn-primary" onclick="location.reload()" style="max-width: 200px; margin: 0 auto;">Thử lại</button>
     </div>
 
-    <div class="nav-actions">
-        <button class="btn-nav" id="btnPrev" onclick="changeQuestion(-1)">⬅️ Lùi lại</button>
-        <button class="btn-random" onclick="shuffleQuestions()">🔀 Trộn ngẫu nhiên</button>
-        <button class="btn-nav" id="btnNext" onclick="changeQuestion(1)">Tiến tới ➡️</button>
+    <div id="main-screen" style="display: none;">
+        <div class="header p-4 flex-between">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <span class="badge" id="ui-progress">Câu: 0/0</span>
+                <span class="badge badge-success" id="ui-accuracy">Đúng: 0/0</span>
+            </div>
+            <div class="flex-between gap-3">
+                <label class="setting-label" title="Bật: Phải nộp bài (đúng/sai đều được) mới qua câu."><input type="checkbox" id="ui-strict-mode"> Strict Mode</label>
+                <button class="btn-nav" id="btn-theme" style="padding: 6px 10px; flex: 0;" title="Đổi nền">🌓</button>
+            </div>
+        </div>
+
+        <div class="p-4" style="overflow-y: auto; max-height: calc(100vh - 180px);">
+            <div class="question-text" id="ui-question">Đang nạp câu hỏi...</div>
+            <textarea id="ui-input" placeholder="Nhập đáp án (Nhấn Enter để nộp bài)..."></textarea>
+            
+            <div class="feedback" id="ui-feedback">
+                <h3 id="ui-score-title">Kết quả</h3>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <strong>Phân tích từ khóa:</strong>
+                        <ul class="idea-list" id="ui-idea-list"></ul>
+                    </div>
+                </div>
+                <div class="official-ans" id="ui-official"></div>
+                <button class="btn-nav" style="margin-top: 15px; padding: 8px; font-size: 0.9rem; max-width: 150px;" onclick="AnalyticsService.exportData()">📥 Export Analytics</button>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-nav" id="btn-prev">⬅️</button>
+            <button class="btn-primary" id="btn-submit">Nộp bài</button>
+            <button class="btn-nav" id="btn-next">➡️</button>
+        </div>
     </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-    const originalData = [
-        { id: 1, q: "Đặc điểm chung mà doanh nhân thường có?", a: "Sự tự tin, Thích giao tiếp xã hội, Nhìn trước tương lai (lo xa/nhìn xa), Có định hướng hành động.", keywords: ["tự tin", "giao tiếp", "tương lai", "nhìn", "hành động"] },
-        { id: 2, q: "Nêu 4 giai đoạn của vòng đời kinh doanh?", a: "Khởi động, Cạnh tranh, Tăng trưởng, Trưởng thành và suy thoái.", keywords: ["khởi động", "cạnh tranh", "tăng trưởng", "trưởng thành", "suy thoái"] },
-        { id: 3, q: "Phân biệt thu nhập chủ động và thu nhập thụ động?", a: "Chủ động: tiền từ lao động trực tiếp (lương). Thụ động: tiền kiếm được không cần trực tiếp làm việc liên tục (thuê nhà, cổ tức).", keywords: ["trực", "lao động", "không", "liên tục"] },
-        { id: 4, q: "Quy trình 4 bước nhận thức cơ hội kinh doanh?", a: "Nhận thức cơ hội, Khái quát hóa, Lập Kế hoạch giải quyết, Vận hành triển khai.", keywords: ["nhận thức", "khái quát", "kế hoạch", "vận hành"] },
-        { id: 5, q: "Các hình thức vốn có thể huy động cho khởi nghiệp?", a: "Vốn riêng (Bootstrapping), Vốn cổ phần (Equity), Đầu tư mạo hiểm (Venture capital), Vốn vay (Loans).", keywords: ["riêng", "tự", "cổ phần", "mạo hiểm", "vay"] },
-        { id: 6, q: "Các yếu tố trong Phương trình ý tưởng kinh doanh?", a: "Đối tượng + Vấn đề/lợi ích + Mô hình kinh doanh.", keywords: ["đối tượng", "vấn đề", "lợi ích", "mô hình"] },
-        { id: 7, q: "5 loại đổi mới được nói đến trong bài Udemy?", a: "Giá cả, Sự tiện lợi, Tốc độ, Chất lượng, Sự thể hiện.", keywords: ["giá", "tiện", "tốc độ", "chất", "thể hiện"] },
-        { id: 8, q: "Mô hình kinh doanh DTC là gì?", a: "Direct to Consumer - Bán trực tiếp đến người tiêu dùng, bỏ qua bán buôn/bán lẻ trung gian.", keywords: ["trực tiếp", "tiêu dùng", "bỏ", "trung gian"] },
-        { id: 9, q: "Quy trình lập Bảng kế hoạch kinh doanh gồm mấy bước? Kể tên bước 4, 5?", a: "Gồm 13 bước. B4: Đội ngũ quản lý, B5: Sản phẩm/dịch vụ.", keywords: ["13", "quản lý", "sản phẩm", "dịch vụ"] },
-        { id: 10, q: "Các loại hình pháp lý theo luật DN 2015?", a: "TNHH 1 thành viên, TNHH 2 thành viên trở lên, Cổ phần, Hợp danh, Doanh nghiệp tư nhân.", keywords: ["tnhh", "cổ phần", "hợp danh", "tư nhân"] },
-        { id: 11, q: "Xây dựng lực lượng bán hàng, chọn kênh truyền thông online là bước mấy trong KHKD?", a: "Bước 9: Chiến lược/kế hoạch marketing và bán hàng.", keywords: ["9", "marketing", "bán hàng"] },
-        { id: 12, q: "Các loại báo cáo cần lập trong Bước 12 (Báo cáo tài chính)?", a: "Doanh thu (REV), Kết quả kinh doanh (IS), Cân đối kế toán (BS), Lưu chuyển tiền tệ (CF).", keywords: ["doanh thu", "kết quả", "cân đối", "lưu chuyển"] },
-        { id: 13, q: "Có mấy bước lập KHKD? Bước 10, 11 tên là gì?", a: "Có 13 bước. B10: Các cột mốc quan trọng, B11: Những rủi ro ảnh hưởng.", keywords: ["13", "cột", "rủi ro"] },
-        { id: 14, q: "Đánh giá rủi ro công nghệ, đối thủ cạnh tranh, khắc phục sự cố là bước nào?", a: "Bước 11: Những rủi ro ảnh hưởng đến Kế hoạch kinh doanh.", keywords: ["11", "rủi ro"] },
-        { id: 15, q: "Công thức tính doanh thu?", a: "Doanh thu = Số lượng sản phẩm bán ra x Giá bán.", keywords: ["số lượng", "giá"] },
-        { id: 16, q: "Công thức tính lợi nhuận?", a: "Lợi nhuận = Tổng doanh thu - Tổng chi phí.", keywords: ["doanh thu", "chi phí"] },
-        { id: 17, q: "Liệt kê 9 yếu tố trong Business Model Canvas?", a: "Phân khúc KH, Giá trị, Kênh phân phối, Quan hệ KH, Nguồn doanh thu, Nguồn lực, Hoạt động, Đối tác, Cấu trúc chi phí.", keywords: ["phân khúc", "giá trị", "kênh", "quan hệ", "doanh thu", "nguồn lực", "hoạt động", "đối tác", "chi phí"] },
-        { id: 18, q: "Cấu trúc chi phí gồm những gì? Ví dụ?", a: "Chi phí cố định (thuê nhà xưởng) và Chi phí biến đổi (mua nguyên vật liệu).", keywords: ["cố định", "biến đổi"] },
-        { id: 19, q: "Xác định nhu cầu, nhân khẩu học, chọn thị trường là yếu tố nào trong Canvas?", a: "Phân khúc khách hàng.", keywords: ["phân khúc", "khách hàng"] },
-        { id: 20, q: "Sắp xếp MS, LinkedIn, Dropbox, FB, Drive, Canva vào mô hình doanh thu?", a: "Đăng ký: Microsoft, Drive, Dropbox. Freemium: LinkedIn, Canva. Quảng cáo: FB, LinkedIn.", keywords: ["đăng ký", "freemium", "quảng cáo"] }
-    ];
+/**
+ * ==========================================
+ * 1. CONFIG & UTILITIES
+ * ==========================================
+ */
+// Lọc các từ vô nghĩa tiếng Việt để tránh false positive (Ví dụ: "là", "và", "những"...)
+const STOP_WORDS = new Set([
+    "la", "va", "co", "thi", "ma", "cua", "cac", "nhung", "duoc", "bi", "ra", "vao", "cho", "de", "tu"
+]);
 
-    let questions = [...originalData];
-    let currentIdx = 0;
-    let solvedIds = new Set(); // Lưu ID các câu đã trả lời đúng để tính điểm
-    let gameBox = document.getElementById("gameBox");
-
-    function renderUI() {
-        // Cập nhật text
-        document.getElementById("progress").innerText = `Câu ${currentIdx + 1} / ${questions.length}`;
-        document.getElementById("score").innerText = `Điểm: ${solvedIds.size * 10}`;
-        document.getElementById("questionText").innerText = questions[currentIdx].q;
-        
-        // Reset trạng thái ô nhập và các nút
-        document.getElementById("userInput").value = "";
-        document.getElementById("userInput").disabled = false;
-        document.getElementById("btnCheck").style.display = "flex";
-        document.getElementById("btnRetry").style.display = "none";
-        document.getElementById("feedbackBox").style.display = "none";
-        gameBox.classList.remove("flash-green", "flash-red", "shake-effect");
-
-        // Disable nút Tới/Lùi nếu ở đầu hoặc cuối
-        document.getElementById("btnPrev").disabled = (currentIdx === 0);
-        document.getElementById("btnNext").disabled = (currentIdx === questions.length - 1);
-        
-        // Cập nhật text nút "Tiến tới" thành "Hoàn thành" nếu là câu cuối
-        if(currentIdx === questions.length - 1) {
-            document.getElementById("btnNext").innerText = "Kết thúc 🎉";
-        } else {
-            document.getElementById("btnNext").innerText = "Tiến tới ➡️";
-        }
+const Utils = {
+    // Escape HTML chống XSS cực mạnh
+    escapeHTML: (str) => {
+        const p = document.createElement('p');
+        p.textContent = str;
+        return p.innerHTML;
+    },
+    // Chuẩn hóa chuỗi: Bỏ dấu tiếng Việt, đưa về chữ thường
+    normalize: (text) => {
+        if (!text) return "";
+        return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                   .replace(/đ/g, "d").replace(/Đ/g, "d")
+                   .toLowerCase().replace(/[^\w\s]/gi, ' ').trim();
+    },
+    // Tách từ và loại bỏ Stop-words
+    tokenize: (text) => {
+        const clean = Utils.normalize(text);
+        return clean.split(/\s+/).filter(t => t && !STOP_WORDS.has(t));
     }
+};
 
-    function checkAnswer() {
-        let userAns = document.getElementById("userInput").value.toLowerCase();
-        if (userAns.trim() === "") {
-            alert("Em chưa nhập đáp án kìa!");
-            return;
-        }
+/**
+ * ==========================================
+ * 2. STORAGE, STATE & ANALYTICS
+ * ==========================================
+ */
+const StorageService = {
+    VERSION: 4,
+    KEY: "quiz_pro_v4",
+    save: (state) => {
+        const payload = {
+            version: StorageService.VERSION,
+            data: {
+                currentIndex: state.currentIndex,
+                solvedIds: Array.from(state.solvedIds),
+                answeredIds: Array.from(state.answeredIds),
+                analytics: state.analytics,
+                strictMode: state.strictMode,
+                theme: state.theme
+            }
+        };
+        localStorage.setItem(StorageService.KEY, JSON.stringify(payload));
+    },
+    load: () => {
+        try {
+            const raw = localStorage.getItem(StorageService.KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (parsed.version !== StorageService.VERSION) {
+                console.warn("[Storage] Version mismatch. Schema migration needed or resetting.");
+                localStorage.removeItem(StorageService.KEY);
+                return null;
+            }
+            return parsed.data;
+        } catch(e) { return null; }
+    }
+};
 
-        let q = questions[currentIdx];
-        let matches = 0;
+const AppState = {
+    questions: [],
+    activeQuestions: [],
+    currentIndex: 0,
+    solvedIds: new Set(),
+    answeredIds: new Set(), // Track ID đã submit (để gỡ block strict mode)
+    isSubmitting: false,
+    strictMode: true,
+    theme: 'dark',
+    analytics: { wrongClusters: {} } // Cấu trúc: { "Q1_ClusterName": 5 }
+};
+
+const AnalyticsService = {
+    recordMissedClusters: (qId, failedClusters) => {
+        failedClusters.forEach(clusterName => {
+            const key = `Q${qId}_${clusterName}`;
+            AppState.analytics.wrongClusters[key] = (AppState.analytics.wrongClusters[key] || 0) + 1;
+        });
+    },
+    exportData: () => {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(AppState.analytics, null, 2));
+        const a = document.createElement('a');
+        a.href = dataStr;
+        a.download = `quiz_analytics_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+};
+
+/**
+ * ==========================================
+ * 3. CORE VALIDATOR LAYER
+ * ==========================================
+ */
+const Validator = {
+    // Tiền xử lý dữ liệu lúc Fetch (Cải thiện performance)
+    preprocessQuestions: (rawQuestions) => {
+        return rawQuestions.map(q => {
+            const processedClusters = (q.clusters || []).map(synonymsArray => {
+                const phrases = synonymsArray.map(phrase => ({
+                    original: phrase,
+                    tokens: Utils.tokenize(phrase)
+                }));
+                return { label: synonymsArray[0], phrases }; // Nhãn gốc để hiển thị
+            });
+            return { ...q, processedClusters, totalClusters: processedClusters.length };
+        });
+    },
+
+    evaluate: (input, question) => {
+        const inputTokens = Utils.tokenize(input);
+        const inputSet = new Set(inputTokens);
         
-        q.keywords.forEach(kw => {
-            if (userAns.includes(kw.toLowerCase())) matches++;
+        const passedClusters = [];
+        const failedClusters = [];
+        let matchedOriginalWords = new Set(); 
+
+        question.processedClusters.forEach(cluster => {
+            let bestCoverage = 0;
+            let matchedTokensForBest = [];
+
+            // Tìm Synonym có độ phủ token cao nhất
+            cluster.phrases.forEach(phrase => {
+                if(phrase.tokens.length === 0) return;
+                
+                const matchedTokens = phrase.tokens.filter(t => inputSet.has(t));
+                const coverage = matchedTokens.length / phrase.tokens.length;
+                
+                if (coverage > bestCoverage) {
+                    bestCoverage = coverage;
+                    matchedTokensForBest = matchedTokens;
+                }
+            });
+
+            // Ngưỡng >= 60% token của 1 cụm mới tính là Pass
+            if (bestCoverage >= 0.6) {
+                passedClusters.push(cluster.label);
+                matchedTokensForBest.forEach(t => matchedOriginalWords.add(t));
+            } else {
+                failedClusters.push(cluster.label);
+            }
         });
 
-        // Du di: đúng >= 40% keyword là cho qua
-        let threshold = Math.max(1, Math.ceil(q.keywords.length * 0.4));
-        let isCorrect = matches >= threshold;
+        const threshold = question.requiredMatches || Math.ceil(question.totalClusters * 0.7);
+        const isCorrect = passedClusters.length >= threshold;
 
-        showFeedback(isCorrect, q);
-    }
+        return { isCorrect, passedClusters, failedClusters, matchedOriginalWords };
+    },
 
-    function showFeedback(isCorrect, q) {
-        let fbBox = document.getElementById("feedbackBox");
-        let fbStatus = document.getElementById("feedbackStatus");
+    // Highlight chống XSS và fix lỗi cắt partial word (Ví dụ: "canh" ko highlight trong "canh tranh")
+    safeHighlight: (rawInput, matchedTokensSet) => {
+        const safeInput = Utils.escapeHTML(rawInput);
         
-        fbBox.style.display = "block";
-        document.getElementById("officialAns").innerText = q.a;
-        gameBox.classList.remove("flash-green", "flash-red", "shake-effect");
-        document.getElementById("btnCheck").style.display = "none";
-        document.getElementById("userInput").disabled = true;
-
-        if (isCorrect) {
-            solvedIds.add(q.id); // Thêm vào set (chỉ cộng điểm 1 lần dù có lùi lại làm lại)
-            document.getElementById("score").innerText = `Điểm: ${solvedIds.size * 10}`;
-            
-            fbStatus.innerText = "🎉 Chính xác! Tuyệt vời!";
-            fbStatus.style.color = "#a6e3a1";
-            fbBox.className = "feedback correct";
-            gameBox.classList.add("flash-green");
-        } else {
-            fbStatus.innerText = "❌ Sai hoặc thiếu ý rồi!";
-            fbStatus.style.color = "#f38ba8";
-            fbBox.className = "feedback wrong";
-            gameBox.classList.add("flash-red", "shake-effect");
-            document.getElementById("btnRetry").style.display = "flex"; // Hiện nút làm lại
-            
-            setTimeout(() => { gameBox.classList.remove("shake-effect"); }, 400);
-        }
-    }
-
-    function retryQuestion() {
-        document.getElementById("userInput").value = "";
-        document.getElementById("userInput").disabled = false;
-        document.getElementById("feedbackBox").style.display = "none";
-        document.getElementById("btnRetry").style.display = "none";
-        document.getElementById("btnCheck").style.display = "flex";
-        gameBox.classList.remove("flash-red");
-        document.getElementById("userInput").focus();
-    }
-
-    function changeQuestion(step) {
-        let newIdx = currentIdx + step;
-        if (newIdx >= 0 && newIdx < questions.length) {
-            currentIdx = newIdx;
-            renderUI();
-        } else if (newIdx >= questions.length) {
-            alert(`Chúc mừng em đã hoàn thành! Tổng điểm: ${solvedIds.size * 10}/${questions.length * 10}`);
-        }
-    }
-
-    function shuffleQuestions() {
-        if(confirm("Trộn câu hỏi sẽ đảo lộn thứ tự hiện tại, em có chắc không?")) {
-            // Thuật toán Fisher-Yates shuffle
-            for (let i = questions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [questions[i], questions[j]] = [questions[j], questions[i]];
+        // Tách câu thành mảng từ (giữ nguyên khoảng trắng và ký tự đặc biệt)
+        // Regex bóc tách chữ và non-chữ để bọc đúng word
+        const parts = safeInput.split(/([\s.,;!?]+)/);
+        
+        const highlighted = parts.map(part => {
+            const normalizedPart = Utils.normalize(part);
+            if (matchedTokensSet.has(normalizedPart)) {
+                return `<span class="highlight-phrase">${part}</span>`;
             }
-            currentIdx = 0;
-            renderUI();
+            return part;
+        }).join('');
+        
+        return highlighted;
+    }
+};
+
+/**
+ * ==========================================
+ * 4. CONTROLLERS
+ * ==========================================
+ */
+const NavController = {
+    navigate: (step) => {
+        const next = AppState.currentIndex + step;
+        if (next >= 0 && next < AppState.activeQuestions.length) {
+            AppState.currentIndex = next;
+            StorageService.save(AppState);
+            UIController.renderQuestion();
+        }
+    },
+    
+    // Strict mode chỉ khóa nếu câu này CHƯA được answered (nộp bài)
+    isNextLocked: () => {
+        if (!AppState.strictMode) return false;
+        const qObj = AppState.activeQuestions[AppState.currentIndex];
+        return !AppState.answeredIds.has(qObj.id);
+    }
+};
+
+const QuizController = {
+    submit: () => {
+        const DOM = UIController.DOM;
+        if (DOM.btnSubmit.disabled || AppState.isSubmitting) return;
+
+        const inputStr = DOM.input.value.trim();
+        if (!inputStr) {
+            UIController.showToast("⚠️ Em chưa nhập nội dung!");
+            return;
+        }
+        
+        AppState.isSubmitting = true;
+        const qObj = AppState.activeQuestions[AppState.currentIndex];
+        const result = Validator.evaluate(inputStr, qObj);
+
+        // Update State
+        AppState.answeredIds.add(qObj.id);
+        if (result.isCorrect) {
+            AppState.solvedIds.add(qObj.id);
+        } else {
+            AnalyticsService.recordMissedClusters(qObj.id, result.failedClusters);
+        }
+        StorageService.save(AppState);
+
+        // Render kết quả
+        UIController.renderFeedback(result, qObj, inputStr);
+        UIController.updateStats();
+        
+        AppState.isSubmitting = false;
+    }
+};
+
+/**
+ * ==========================================
+ * 5. UI & DOM MANIPULATION
+ * ==========================================
+ */
+const UIController = {
+    DOM: {
+        loading: document.getElementById('loading-screen'),
+        error: document.getElementById('error-screen'),
+        main: document.getElementById('main-screen'),
+        progress: document.getElementById('ui-progress'),
+        accuracy: document.getElementById('ui-accuracy'),
+        question: document.getElementById('ui-question'),
+        input: document.getElementById('ui-input'),
+        btnNext: document.getElementById('btn-next'),
+        btnPrev: document.getElementById('btn-prev'),
+        btnSubmit: document.getElementById('btn-submit'),
+        feedback: document.getElementById('ui-feedback'),
+        strictMode: document.getElementById('ui-strict-mode'),
+        toast: document.getElementById('toast')
+    },
+
+    showToast: (msg) => {
+        UIController.DOM.toast.innerText = msg;
+        UIController.DOM.toast.classList.add("show");
+        setTimeout(() => UIController.DOM.toast.classList.remove("show"), 2500);
+    },
+
+    initEvents: () => {
+        const DOM = UIController.DOM;
+        DOM.btnSubmit.addEventListener('click', QuizController.submit);
+        DOM.btnPrev.addEventListener('click', () => NavController.navigate(-1));
+        DOM.btnNext.addEventListener('click', () => NavController.navigate(1));
+        
+        DOM.input.addEventListener('keydown', (e) => {
+            if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); QuizController.submit(); }
+        });
+
+        DOM.strictMode.addEventListener('change', (e) => {
+            AppState.strictMode = e.target.checked;
+            StorageService.save(AppState);
+            DOM.btnNext.disabled = NavController.isNextLocked();
+        });
+
+        document.getElementById('btn-theme').addEventListener('click', () => {
+            AppState.theme = AppState.theme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', AppState.theme);
+            StorageService.save(AppState);
+        });
+    },
+
+    updateStats: () => {
+        const total = AppState.activeQuestions.length;
+        const current = total ? AppState.currentIndex + 1 : 0;
+        UIController.DOM.progress.innerText = `Câu: ${current}/${total}`;
+        UIController.DOM.accuracy.innerText = `Đúng: ${AppState.solvedIds.size}/${AppState.questions.length}`;
+    },
+
+    renderQuestion: () => {
+        const DOM = UIController.DOM;
+        DOM.feedback.classList.remove('show');
+        
+        const qObj = AppState.activeQuestions[AppState.currentIndex];
+        DOM.question.innerText = qObj.question;
+        DOM.input.value = "";
+        DOM.input.disabled = false;
+        DOM.btnSubmit.disabled = false;
+        
+        DOM.btnPrev.disabled = AppState.currentIndex === 0;
+        DOM.btnNext.disabled = NavController.isNextLocked();
+        
+        UIController.updateStats();
+        setTimeout(() => DOM.input.focus(), 50);
+    },
+
+    renderFeedback: (result, qObj, rawInput) => {
+        const DOM = UIController.DOM;
+        DOM.feedback.className = `feedback show ${result.isCorrect ? 'correct' : 'wrong'}`;
+        
+        const pct = Math.round((result.passedClusters.length / qObj.totalClusters) * 100);
+        document.getElementById('ui-score-title').innerText = result.isCorrect 
+            ? `✅ Đạt yêu cầu (${pct}%)` : `❌ Chưa đủ ý (${pct}%)`;
+
+        let listHTML = "";
+        result.passedClusters.forEach(c => listHTML += `<li class="idea-pass">✔ ${Utils.escapeHTML(c)}</li>`);
+        result.failedClusters.forEach(c => listHTML += `<li class="idea-fail">✖ ${Utils.escapeHTML(c)}</li>`);
+        document.getElementById('ui-idea-list').innerHTML = listHTML;
+
+        // Render Highlighted Output
+        const highlightedSafeOutput = Validator.safeHighlight(rawInput, result.matchedOriginalWords);
+        
+        document.getElementById('ui-official').innerHTML = `
+            <div style="margin-bottom: 15px; color: var(--text-dim); font-size: 0.9rem;">
+                <em>Input của bạn (Đã nhận diện token):</em><br>
+                <div style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 6px; margin-top: 5px;">${highlightedSafeOutput}</div>
+            </div>
+            <strong>Đáp án chuẩn tham khảo:</strong><br>
+            ${Utils.escapeHTML(qObj.answer)}
+        `;
+        
+        DOM.input.disabled = true;
+        DOM.btnSubmit.disabled = true;
+        DOM.btnNext.disabled = AppState.currentIndex === AppState.activeQuestions.length - 1;
+        
+        setTimeout(() => DOM.feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+};
+
+/**
+ * ==========================================
+ * 6. BOOTSTRAP APP
+ * ==========================================
+ */
+const App = {
+    syncStateWithData: () => {
+        // Lọc bỏ những ID thừa (nếu JSON thay đổi data)
+        const validIds = new Set(AppState.questions.map(q => q.id));
+        AppState.solvedIds = new Set([...AppState.solvedIds].filter(id => validIds.has(id)));
+        AppState.answeredIds = new Set([...AppState.answeredIds].filter(id => validIds.has(id)));
+        
+        if (AppState.currentIndex >= AppState.activeQuestions.length) {
+            AppState.currentIndex = 0;
+        }
+    },
+
+    start: async () => {
+        try {
+            // Path tuyệt đối /questions.json chuẩn cho Vercel deploy
+            const res = await fetch('/questions.json');
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const rawData = await res.json();
+            
+            AppState.questions = Validator.preprocessQuestions(rawData);
+            AppState.activeQuestions = [...AppState.questions];
+            
+            // Hydrate Storage
+            const savedState = StorageService.load();
+            if (savedState) {
+                AppState.currentIndex = savedState.currentIndex;
+                AppState.solvedIds = new Set(savedState.solvedIds || []);
+                AppState.answeredIds = new Set(savedState.answeredIds || []);
+                AppState.analytics = savedState.analytics || { wrongClusters: {} };
+                AppState.strictMode = savedState.strictMode;
+                AppState.theme = savedState.theme || 'dark';
+            }
+            
+            App.syncStateWithData();
+
+            // UI Init
+            UIController.DOM.loading.style.display = 'none';
+            UIController.DOM.main.style.display = 'block';
+            UIController.DOM.strictMode.checked = AppState.strictMode;
+            document.documentElement.setAttribute('data-theme', AppState.theme);
+
+            UIController.initEvents();
+            UIController.renderQuestion();
+        } catch (error) {
+            console.error("[Boot Error]", error);
+            UIController.DOM.loading.style.display = 'none';
+            UIController.DOM.error.style.display = 'flex';
         }
     }
+};
 
-    // Khởi tạo lần đầu
-    renderUI();
+document.addEventListener("DOMContentLoaded", App.start);
+
 </script>
-
 </body>
 </html>

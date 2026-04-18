@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "question": "Em hãy cho biết những đặc điểm chung mà doanh nhân thường có?",
+    "answer": "1. Sự tự tin\n2. Thích giao tiếp xã hội\n3. Nhìn trước tương lai\n4. Có định hướng hành động",
+    "clusters": [
+      ["tu tin"],
+      ["giao tiep xa hoi", "ky nang mem"],
+      ["tuong lai", "lo xa", "nhin xa trong rong"],
+      ["hanh dong", "dinh huong"]
+    ],
+    "requiredMatches": 3
+  },
+  {
+    "id": 2,
+    "question": "Hãy nêu 4 giai đoạn của vòng đời kinh doanh?",
+    "answer": "1. Khởi động\n2. Cạnh tranh\n3. Tăng trưởng\n4. Trưởng thành và suy thoái",
+    "clusters": [
+      ["khoi dong"],
+      ["canh tranh"],
+      ["tang truong", "phat trien"],
+      ["truong thanh", "suy thoai"]
+    ]
+  }
+]
