@@ -45,8 +45,17 @@
         
         /* Stats & Header */
         .header { border-bottom: 1px solid var(--border); }
-        .badge { background: var(--border); padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block;}
+        .badge { background: var(--border); padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block; transition: background 0.4s, color 0.4s; }
         .badge-success { background: var(--success); color: #000; }
+        /* Mastery Badge levels */
+        .mastery-0 { background: var(--border); color: var(--text-dim); }
+        .mastery-1 { background: var(--primary); color: #000; }
+        .mastery-2 { background: #fab387; color: #1e1e2e; }
+        .mastery-3 { background: #f38ba8; color: #1e1e2e; }
+        .mastery-4 { background: #f9e2af; color: #1e1e2e; }
+        /* Hint button */
+        .btn-hint { background: rgba(249,226,175,0.15); color: var(--highlight-text); border: 1px solid var(--highlight-text); border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-top: 8px; display: none; }
+        .btn-hint:hover { background: rgba(249,226,175,0.25); }
         .setting-label { font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 5px; cursor: pointer; user-select: none; }
         
         /* Typography */
@@ -104,10 +113,11 @@
         <div class="header p-4 flex-between">
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <span class="badge" id="ui-progress">Câu: 0/0</span>
-                <span class="badge badge-success" id="ui-accuracy">Đúng: 0/0</span>
+                <span class="badge mastery-0" id="ui-accuracy">🌱 0%</span>
             </div>
             <div class="flex-between gap-3">
                 <label class="setting-label" title="Bật: Phải nộp bài (đúng/sai đều được) mới qua câu."><input type="checkbox" id="ui-strict-mode"> Strict Mode</label>
+                <button class="btn-nav" id="btn-weak" style="padding: 6px 10px; flex: 0;" title="Ôn lại câu yếu">🎯</button>
                 <button class="btn-nav" id="btn-shuffle" style="padding: 6px 10px; flex: 0;" title="Xáo trộn câu hỏi">🔀</button>
                 <button class="btn-nav" id="btn-theme" style="padding: 6px 10px; flex: 0;" title="Đổi nền">🌓</button>
             </div>
@@ -116,6 +126,7 @@
         <div class="p-4" style="overflow-y: auto; max-height: calc(100vh - 180px);">
             <div class="question-text" id="ui-question">Đang nạp câu hỏi...</div>
             <textarea id="ui-input" placeholder="Nhập đáp án (Nhấn Enter để nộp bài)..."></textarea>
+            <button class="btn-hint" id="btn-hint">💡 Gợi ý</button>
             
             <div class="feedback" id="ui-feedback">
                 <h3 id="ui-score-title">Kết quả</h3>
@@ -413,14 +424,63 @@ const QuizController = {
             AppState.solvedIds.add(qObj.id);
         } else {
             AnalyticsService.recordMissedClusters(qObj.id, result.failedClusters);
+            // Toast nhanh: báo ngay số ý còn thiếu
+            UIController.showToast(`❌ Thiếu ${result.failedClusters.length} ý — bấm 💡 để gợi ý`);
         }
         StorageService.save(AppState);
 
-        // Render kết quả
+        // Render kết quả + cấp hint cho câu sai
+        HintService.reset(result);
         UIController.renderFeedback(result, qObj, inputStr);
         UIController.updateStats();
         
         AppState.isSubmitting = false;
+    }
+};
+
+/**
+ * ==========================================
+ * 4b. HINT SERVICE
+ * ==========================================
+ */
+const HintService = {
+    _level: 0,          // 0 = chưa hint, 1 = tên cluster, 2 = keyword
+    _result: null,
+
+    reset: (result) => {
+        HintService._level = 0;
+        HintService._result = result;
+        // Chỉ hiện nút khi có câu sai
+        const btn = document.getElementById('btn-hint');
+        if (btn) btn.style.display = result.isCorrect ? 'none' : 'inline-block';
+    },
+
+    // Gọi khi user bấm nút Gợi ý — escalate qua 2 level
+    giveHint: () => {
+        const r = HintService._result;
+        if (!r || r.isCorrect) return;
+        HintService._level++;
+
+        if (HintService._level === 1) {
+            // Level 1: chỉ nói tên cluster bị thiếu
+            const names = r.failedClusters.map(c => `"${c}"`).join(', ');
+            UIController.showToast(`💡 Gợi ý: Thiếu chủ đề → ${names}`);
+        } else if (HintService._level === 2) {
+            // Level 2: lấy token đầu tiên của cluster bị thiếu làm keyword
+            const keywords = r.failedClusters
+                .map(label => {
+                    // Tìm lại cluster object từ câu hiện tại
+                    const qObj = AppState.activeQuestions[AppState.currentIndex];
+                    const cluster = qObj.processedClusters.find(c => c.label === label);
+                    return cluster ? cluster.phrases[0].tokens.slice(0, 2).join(' ') : label;
+                })
+                .filter(Boolean)
+                .join(' | ');
+            UIController.showToast(`🔑 Keyword: ${keywords}`);
+        } else {
+            // Đã hint hết 2 level → nhắc xem đáp án chuẩn bên dưới
+            UIController.showToast('📖 Xem đáp án chuẩn tham khảo bên dưới nhé!');
+        }
     }
 };
 
@@ -441,6 +501,8 @@ const UIController = {
         btnNext: document.getElementById('btn-next'),
         btnPrev: document.getElementById('btn-prev'),
         btnSubmit: document.getElementById('btn-submit'),
+        btnWeak: document.getElementById('btn-weak'),
+        btnHint: document.getElementById('btn-hint'),
         feedback: document.getElementById('ui-feedback'),
         strictMode: document.getElementById('ui-strict-mode'),
         toast: document.getElementById('toast')
@@ -468,8 +530,16 @@ const UIController = {
             DOM.btnNext.disabled = NavController.isNextLocked();
         });
 
+        document.getElementById('btn-weak').addEventListener('click', () => {
+            ShuffleController.shuffleWeak();
+        });
+
         document.getElementById('btn-shuffle').addEventListener('click', () => {
             ShuffleController.shuffleAll();
+        });
+
+        document.getElementById('btn-hint').addEventListener('click', () => {
+            HintService.giveHint();
         });
 
         document.getElementById('btn-theme').addEventListener('click', () => {
@@ -483,7 +553,24 @@ const UIController = {
         const total = AppState.activeQuestions.length;
         const current = total ? AppState.currentIndex + 1 : 0;
         UIController.DOM.progress.innerText = `Câu: ${current}/${total}`;
-        UIController.DOM.accuracy.innerText = `Đúng: ${AppState.solvedIds.size}/${AppState.questions.length}`;
+
+        // Mastery Badge — 5 cấp độ theo % làm đúng trên toàn bộ đề
+        const totalQ = AppState.questions.length;
+        const pct = totalQ ? Math.round(AppState.solvedIds.size / totalQ * 100) : 0;
+        const levels = [
+            { min: 0,  cls: 'mastery-0', label: '🌱 Nhập môn' },
+            { min: 30, cls: 'mastery-1', label: '📖 Cơ bản'  },
+            { min: 60, cls: 'mastery-2', label: '⚡ Nâng cao' },
+            { min: 85, cls: 'mastery-3', label: '🔥 Thành thạo' },
+            { min: 100,cls: 'mastery-4', label: '👑 Bậc thầy' }
+        ];
+        const tier = [...levels].reverse().find(l => pct >= l.min) || levels[0];
+        const badge = UIController.DOM.accuracy;
+        badge.className = `badge ${tier.cls}`;
+        badge.innerText = `${tier.label} ${pct}%`;
+
+        // Nút Câu yếu: disable nếu đã làm đúng hết
+        UIController.DOM.btnWeak.disabled = AppState.solvedIds.size === totalQ;
     },
 
     renderQuestion: () => {
@@ -496,6 +583,11 @@ const UIController = {
         DOM.input.disabled = false;
         DOM.btnSubmit.disabled = false;
         
+        // Reset hint khi chuyển câu
+        DOM.btnHint.style.display = 'none';
+        HintService._level = 0;
+        HintService._result = null;
+
         DOM.btnPrev.disabled = AppState.currentIndex === 0;
         DOM.btnNext.disabled = NavController.isNextLocked();
         
@@ -531,6 +623,8 @@ const UIController = {
         DOM.input.disabled = true;
         DOM.btnSubmit.disabled = true;
         DOM.btnNext.disabled = AppState.currentIndex === AppState.activeQuestions.length - 1;
+        // Hint button: chỉ hiện khi sai (HintService.reset() đã xử lý, sync lại ở đây)
+        DOM.btnHint.style.display = result.isCorrect ? 'none' : 'inline-block';
         
         setTimeout(() => DOM.feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     }
